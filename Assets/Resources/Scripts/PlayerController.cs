@@ -25,8 +25,8 @@ namespace KeyOfHistory.PlayerControl
         private int _yVelHash;
         private float _xRotation;
 
-        private const float _walkSpeed = 2f;
-        private const float _runSpeed = 6f;
+        private const float _walkSpeed = 6f;
+        private const float _runSpeed = 12f;
         private Vector2 _currentVelocity;
 
         private void Start()
