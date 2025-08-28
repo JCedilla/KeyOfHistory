@@ -119,6 +119,37 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &379426061
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 379426062}
+  m_Layer: 0
+  m_Name: CameraRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &379426062
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379426061}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3.426, z: 0.304}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 5653519914986095684}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &410087039
 GameObject:
   m_ObjectHideFlags: 0
@@ -370,12 +401,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 506072473}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.031372204, y: 0.9686285, z: -0.1732612, w: 0.17537174}
-  m_LocalPosition: {x: -0.8212887, y: 2.594037, z: 6.061272}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 3.426, z: 0.304}
+  m_LocalScale: {x: 2.009919, y: 1.8659093, z: 1.8952724}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 543450652691665748}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &832575517
 GameObject:
@@ -676,6 +707,7 @@ Transform:
   m_LocalScale: {x: 0.4928408, y: 0.53724533, z: 0.5310068}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 506072477}
   - {fileID: 4167280744265612933}
   - {fileID: 1320764502711984333}
   - {fileID: 8126480335060577731}
@@ -763,10 +795,10 @@ GameObject:
   - component: {fileID: 5866666021038442799}
   - component: {fileID: 5866666021038442803}
   - component: {fileID: 5866666021038442805}
-  - component: {fileID: 5866666021038442804}
+  - component: {fileID: 5866666021038442806}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -2521,7 +2553,8 @@ Transform:
   m_LocalPosition: {x: -0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 379426062}
   m_Father: {fileID: 543450652691665748}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5680486696290847330
@@ -2658,7 +2691,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 1
-  m_Constraints: 112
+  m_Constraints: 80
   m_CollisionDetection: 0
 --- !u!114 &5866666021038442803
 MonoBehaviour:
@@ -2690,19 +2723,6 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
---- !u!114 &5866666021038442804
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 919132148954581486}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a0413536871a64e42b05da9bf0d4301f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  PlayerInput: {fileID: 5866666021038442803}
 --- !u!114 &5866666021038442805
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2715,6 +2735,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 781f38b9be624434eb217339adc1e511, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  AnimBlendSpeed: 8.9
+  CameraRoot: {fileID: 379426062}
+  Camera: {fileID: 506072477}
+  UpperLimit: -40
+  BottomLimit: 70
+  MouseSensitivity: 21.9
+--- !u!114 &5866666021038442806
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 919132148954581486}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a172fb8ca7f6f634989d1f55c42c761c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  PlayerInput: {fileID: 5866666021038442803}
 --- !u!4 &5901452234790601175
 Transform:
   m_ObjectHideFlags: 0
@@ -3587,5 +3626,4 @@ SceneRoots:
   - {fileID: 410087041}
   - {fileID: 832575519}
   - {fileID: 1036074070}
-  - {fileID: 506072477}
   - {fileID: 543450652691665748}
