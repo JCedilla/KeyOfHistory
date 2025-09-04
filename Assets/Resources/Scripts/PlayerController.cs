@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using KeyOfHistory.Manager;
+using KeyOfHistory.UI;
 
 
 namespace KeyOfHistory.PlayerControl
@@ -20,6 +21,16 @@ namespace KeyOfHistory.PlayerControl
         // [SerializeField, Range(10, 500)] private float JumpFactor = 260f;
         // [SerializeField] private float Dis2Ground = 0.8f;
         //  [SerializeField] private LayerMask GroundCheck;
+        [Header("Stamina System")]
+        [SerializeField] private float MaxStamina = 100f;
+        [SerializeField] private float StaminaDrainRate = 35f;
+        [SerializeField] private float StaminaRegenRate = 15f;
+        [SerializeField] private float MinStaminaToRun = 35f;
+        [SerializeField] private float CurrentStamina;
+        [Header("UI References")]
+        [SerializeField] private StaminaUIManager StaminaUI;
+
+        private bool _canRun = true;
         private Rigidbody _playerRigidbody;
         private InputManager _inputManager;
         private Animator _animator;
@@ -33,7 +44,7 @@ namespace KeyOfHistory.PlayerControl
         private float _xRotation;
 
         private const float _walkSpeed = 6f;
-        private const float _runSpeed = 12f;
+        private const float _runSpeed = 14f;
         private Vector2 _currentVelocity;
 
         private void Start()
@@ -48,14 +59,17 @@ namespace KeyOfHistory.PlayerControl
             _jumpHash = Animator.StringToHash("Jump");
             _groundHash = Animator.StringToHash("Grounded");
             _fallingHash = Animator.StringToHash("Falling");
+
+            CurrentStamina = MaxStamina;
         }
 
         private void FixedUpdate()
         {
             Move();
+            UpdateStamina();
             // ();HandleJump
             // SampleGround();
-            
+
         }
 
         private void LateUpdate()
@@ -66,7 +80,7 @@ namespace KeyOfHistory.PlayerControl
         private void Move()
         {
             if (!_hasAnimator) return;
-            float targetSpeed = _inputManager.Run ? _runSpeed : _walkSpeed;
+            float targetSpeed = (_inputManager.Run && _canRun) ? _runSpeed : _walkSpeed;
             if (_inputManager.Move == Vector2.zero) targetSpeed = 0.01f;
 
             _currentVelocity.x = Mathf.Lerp(_currentVelocity.x, _inputManager.Move.x * targetSpeed, AnimBlendSpeed * Time.fixedDeltaTime);
@@ -95,50 +109,87 @@ namespace KeyOfHistory.PlayerControl
             Camera.localRotation = Quaternion.Euler(_xRotation, 0, 0);
             _playerRigidbody.MoveRotation(_playerRigidbody.rotation * Quaternion.Euler(0, Mouse_X * MouseSensitivity * Time.smoothDeltaTime, 0));
         }
-        // private void HandleJump()
-        // {
-        //     if (!_hasAnimator) return;
-        //     if (!_inputManager.Jump) return;
-        //     // if(!_grounded) return;
-        //     _animator.SetTrigger(_jumpHash);
 
-        //     //Enable this if you want B-Hop
-        //     //_playerRigidbody.AddForce(-_playerRigidbody.velocity.y * Vector3.up, ForceMode.VelocityChange);
-        //     //_playerRigidbody.AddForce(Vector3.up * JumpFactor, ForceMode.Impulse);
-        //     //_animator.ResetTrigger(_jumpHash);
-        // }
+        //JUMPING DISABLED
+        /* private void HandleJump()
+        {
+            if (!_hasAnimator) return;
+            if (!_inputManager.Jump) return;
+            // if(!_grounded) return;
+            _animator.SetTrigger(_jumpHash);
 
-        // public void JumpAddForce()
-        // { 
-        //     _playerRigidbody.AddForce(-_playerRigidbody.linearVelocity.y * Vector3.up, ForceMode.VelocityChange);
-        //     _playerRigidbody.AddForce(Vector3.up * JumpFactor, ForceMode.Impulse);
-        //     _animator.ResetTrigger(_jumpHash);
-        // }
+            //Enable this if you want B-Hop
+            //_playerRigidbody.AddForce(-_playerRigidbody.velocity.y * Vector3.up, ForceMode.VelocityChange);
+            //_playerRigidbody.AddForce(Vector3.up * JumpFactor, ForceMode.Impulse);
+            //_animator.ResetTrigger(_jumpHash);
+        }
 
-        // private void SampleGround()
-        // {
-        //     if (!_hasAnimator) return;
+        public void JumpAddForce()
+        { 
+            _playerRigidbody.AddForce(-_playerRigidbody.linearVelocity.y * Vector3.up, ForceMode.VelocityChange);
+            _playerRigidbody.AddForce(Vector3.up * JumpFactor, ForceMode.Impulse);
+            _animator.ResetTrigger(_jumpHash);
+        }
 
-        //     RaycastHit hitInfo;
-        //     if (Physics.Raycast(_playerRigidbody.worldCenterOfMass, Vector3.down, out hitInfo, Dis2Ground + 0.1f, GroundCheck))
-        //     {
-        //         //Grounded
-        //         _grounded = true;
-        //         SetAnimationGrounding();
-        //         return;
-        //     }
-        //     //Falling
-        //     _grounded = false;
-        //     Debug.Log(_grounded);
-        //     // _animator.SetFloat(_zVelHash, _playerRigidbody.velocity.y);
-        //     SetAnimationGrounding();
-        //     return;
-        // }
-        // private void SetAnimationGrounding()
-        // {
-        //     _animator.SetBool(_fallingHash, !_grounded);
-        //     _animator.SetBool(_groundHash, _grounded);
-        // }
-}
+        private void SampleGround()
+        {
+            if (!_hasAnimator) return;
+
+            RaycastHit hitInfo;
+            if (Physics.Raycast(_playerRigidbody.worldCenterOfMass, Vector3.down, out hitInfo, Dis2Ground + 0.1f, GroundCheck))
+            {
+                //Grounded
+                _grounded = true;
+                SetAnimationGrounding();
+                return;
+            }
+            //Falling
+            _grounded = false;
+            Debug.Log(_grounded);
+            // _animator.SetFloat(_zVelHash, _playerRigidbody.velocity.y);
+            SetAnimationGrounding();
+            return;
+        }
+        private void SetAnimationGrounding()
+        {
+            _animator.SetBool(_fallingHash, !_grounded);
+            _animator.SetBool(_groundHash, _grounded);
+        } */
+
+        private void UpdateStamina()
+        {
+            bool isRunning = _inputManager.Run && _inputManager.Move != Vector2.zero && _canRun;
+
+            if (isRunning)
+            {
+                CurrentStamina -= StaminaDrainRate * Time.fixedDeltaTime;
+                CurrentStamina = Mathf.Max(CurrentStamina, 0f);
+
+                if (CurrentStamina <= 0f)
+                {
+                    _canRun = false;
+                }
+            }
+            else
+            {
+                CurrentStamina += StaminaRegenRate * Time.fixedDeltaTime;
+                CurrentStamina = Mathf.Min(CurrentStamina, MaxStamina);
+
+                if (CurrentStamina >= MinStaminaToRun)
+                {
+                    _canRun = true;
+                }
+            }
+
+            // Update UI
+            if (StaminaUI != null)
+            {
+                StaminaUI.UpdateStaminaUI(CurrentStamina, MaxStamina);
+            }
+        }
+        
+
+
+    }
 
 }
