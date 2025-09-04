@@ -20,15 +20,22 @@ namespace KeyOfHistory.PlayerControl
         [SerializeField] private float MouseSensitivity = 21.9f;
         // [SerializeField, Range(10, 500)] private float JumpFactor = 260f;
         // [SerializeField] private float Dis2Ground = 0.8f;
-        //  [SerializeField] private LayerMask GroundCheck;
+        //  [SerializeField] private LayerMask GroundCheck; 
         [Header("Stamina System")]
         [SerializeField] private float MaxStamina = 100f;
         [SerializeField] private float StaminaDrainRate = 35f;
         [SerializeField] private float StaminaRegenRate = 15f;
-        [SerializeField] private float MinStaminaToRun = 35f;
+        [SerializeField] private float MinStaminaToRun = 55f;
         [SerializeField] private float CurrentStamina;
         [Header("UI References")]
         [SerializeField] private StaminaUIManager StaminaUI;
+
+        [Header("Footstep Audio")]
+        [SerializeField] private AudioSource FootstepAudioSource;
+        [SerializeField] private AudioClip WalkSound;
+        [SerializeField] private AudioClip RunSound;
+
+        private float _stepTimer;
 
         private bool _canRun = true;
         private Rigidbody _playerRigidbody;
@@ -42,6 +49,8 @@ namespace KeyOfHistory.PlayerControl
         private int _groundHash;
         private int _fallingHash;
         private float _xRotation;
+
+
 
         private const float _walkSpeed = 6f;
         private const float _runSpeed = 14f;
@@ -67,6 +76,8 @@ namespace KeyOfHistory.PlayerControl
         {
             Move();
             UpdateStamina();
+            HandleFootsteps();
+
             // ();HandleJump
             // SampleGround();
 
@@ -93,6 +104,10 @@ namespace KeyOfHistory.PlayerControl
 
             _animator.SetFloat(_xVelHash, _currentVelocity.x);
             _animator.SetFloat(_yVelHash, _currentVelocity.y);
+
+            // Play footstep sounds
+            
+
         }
         private void CamMovements()
         {
@@ -187,7 +202,54 @@ namespace KeyOfHistory.PlayerControl
                 StaminaUI.UpdateStaminaUI(CurrentStamina, MaxStamina);
             }
         }
+
+        private void PlayFootstepSound()
+        {
+            if (FootstepAudioSource == null) return;
+
+            bool isRunning = _inputManager.Run && _canRun;
+            AudioClip soundToPlay = isRunning ? RunSound : WalkSound;
+
+            if (soundToPlay != null)
+            {
+                FootstepAudioSource.PlayOneShot(soundToPlay);
+            }
+        }
         
+        private void HandleFootsteps()
+{
+    if (FootstepAudioSource == null) return;
+
+    bool isMoving = _inputManager.Move != Vector2.zero;
+    bool isRunning = _inputManager.Run && _canRun;
+
+    if (isMoving)
+    {
+        // If not already playing, start the correct clip
+        if (!FootstepAudioSource.isPlaying)
+        {
+            FootstepAudioSource.clip = isRunning ? RunSound : WalkSound;
+            FootstepAudioSource.loop = true;
+            FootstepAudioSource.Play();
+        }
+        else
+        {
+            // If clip doesn’t match movement type, switch it
+            AudioClip correctClip = isRunning ? RunSound : WalkSound;
+            if (FootstepAudioSource.clip != correctClip)
+            {
+                FootstepAudioSource.clip = correctClip;
+                FootstepAudioSource.Play();
+            }
+        }
+    }
+    else
+    {
+        // Stop when not moving
+        FootstepAudioSource.Stop();
+    }
+}
+
 
 
     }
