@@ -17,9 +17,9 @@ namespace KeyOfHistory.PlayerControl
         [SerializeField] private float UpperLimit = -40f;
         [SerializeField] private float BottomLimit = 70f;
         [SerializeField] private float MouseSensitivity = 21.9f;
-        [SerializeField, Range(10, 500)] private float JumpFactor = 260f;
-        [SerializeField] private float Dis2Ground = 0.8f;
-         [SerializeField] private LayerMask GroundCheck;
+        // [SerializeField, Range(10, 500)] private float JumpFactor = 260f;
+        // [SerializeField] private float Dis2Ground = 0.8f;
+        //  [SerializeField] private LayerMask GroundCheck;
         private Rigidbody _playerRigidbody;
         private InputManager _inputManager;
         private Animator _animator;
@@ -53,8 +53,8 @@ namespace KeyOfHistory.PlayerControl
         private void FixedUpdate()
         {
             Move();
-            HandleJump();
-            SampleGround();
+            // ();HandleJump
+            // SampleGround();
             
         }
 
@@ -95,50 +95,50 @@ namespace KeyOfHistory.PlayerControl
             Camera.localRotation = Quaternion.Euler(_xRotation, 0, 0);
             _playerRigidbody.MoveRotation(_playerRigidbody.rotation * Quaternion.Euler(0, Mouse_X * MouseSensitivity * Time.smoothDeltaTime, 0));
         }
-        private void HandleJump()
-        {
-            if (!_hasAnimator) return;
-            if (!_inputManager.Jump) return;
-            // if(!_grounded) return;
-            _animator.SetTrigger(_jumpHash);
+        // private void HandleJump()
+        // {
+        //     if (!_hasAnimator) return;
+        //     if (!_inputManager.Jump) return;
+        //     // if(!_grounded) return;
+        //     _animator.SetTrigger(_jumpHash);
 
-            //Enable this if you want B-Hop
-            //_playerRigidbody.AddForce(-_playerRigidbody.velocity.y * Vector3.up, ForceMode.VelocityChange);
-            //_playerRigidbody.AddForce(Vector3.up * JumpFactor, ForceMode.Impulse);
-            //_animator.ResetTrigger(_jumpHash);
-        }
+        //     //Enable this if you want B-Hop
+        //     //_playerRigidbody.AddForce(-_playerRigidbody.velocity.y * Vector3.up, ForceMode.VelocityChange);
+        //     //_playerRigidbody.AddForce(Vector3.up * JumpFactor, ForceMode.Impulse);
+        //     //_animator.ResetTrigger(_jumpHash);
+        // }
 
-        public void JumpAddForce()
-        { 
-            _playerRigidbody.AddForce(-_playerRigidbody.linearVelocity.y * Vector3.up, ForceMode.VelocityChange);
-            _playerRigidbody.AddForce(Vector3.up * JumpFactor, ForceMode.Impulse);
-            _animator.ResetTrigger(_jumpHash);
-        }
+        // public void JumpAddForce()
+        // { 
+        //     _playerRigidbody.AddForce(-_playerRigidbody.linearVelocity.y * Vector3.up, ForceMode.VelocityChange);
+        //     _playerRigidbody.AddForce(Vector3.up * JumpFactor, ForceMode.Impulse);
+        //     _animator.ResetTrigger(_jumpHash);
+        // }
 
-        private void SampleGround()
-        {
-            if (!_hasAnimator) return;
+        // private void SampleGround()
+        // {
+        //     if (!_hasAnimator) return;
 
-            RaycastHit hitInfo;
-            if (Physics.Raycast(_playerRigidbody.worldCenterOfMass, Vector3.down, out hitInfo, Dis2Ground + 0.1f, GroundCheck))
-            {
-                //Grounded
-                _grounded = true;
-                SetAnimationGrounding();
-                return;
-            }
-            //Falling
-            _grounded = false;
-            Debug.Log(_grounded);
-            // _animator.SetFloat(_zVelHash, _playerRigidbody.velocity.y);
-            SetAnimationGrounding();
-            return;
-        }
-        private void SetAnimationGrounding()
-        {
-            _animator.SetBool(_fallingHash, !_grounded);
-            _animator.SetBool(_groundHash, _grounded);
-        }
+        //     RaycastHit hitInfo;
+        //     if (Physics.Raycast(_playerRigidbody.worldCenterOfMass, Vector3.down, out hitInfo, Dis2Ground + 0.1f, GroundCheck))
+        //     {
+        //         //Grounded
+        //         _grounded = true;
+        //         SetAnimationGrounding();
+        //         return;
+        //     }
+        //     //Falling
+        //     _grounded = false;
+        //     Debug.Log(_grounded);
+        //     // _animator.SetFloat(_zVelHash, _playerRigidbody.velocity.y);
+        //     SetAnimationGrounding();
+        //     return;
+        // }
+        // private void SetAnimationGrounding()
+        // {
+        //     _animator.SetBool(_fallingHash, !_grounded);
+        //     _animator.SetBool(_groundHash, _grounded);
+        // }
 }
 
 }
