@@ -5,9 +5,14 @@ public class MainMenu : MonoBehaviour
 {
     public void PlayGame()
     {
-        // Loads your GameScene by name
-        SceneManager.LoadScene("GameScene");
-        Debug.Log("I have been pressed!");
+        // Start a coroutine that waits before loading
+        StartCoroutine(LoadGameAfterDelay());
+    }
+
+    private System.Collections.IEnumerator LoadGameAfterDelay()
+    {
+        yield return new WaitForSeconds(1f); // ⏳ wait 1 second
+        SceneManager.LoadScene("GameScene"); // replace with your scene name
     }
 
     public void QuitGame()
