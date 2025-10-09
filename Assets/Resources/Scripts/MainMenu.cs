@@ -3,22 +3,48 @@ using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
+    [Header("UI References")]
+    public GameObject confirmQuitPanel; // The confirmation box
+    public GameObject playButton;        // Assign in Inspector
+    public GameObject quitButton;        // Assign in Inspector
+    public GameObject titleImage;        // 👈 Assign your TitleImage here
+
     public void PlayGame()
     {
-        // Start a coroutine that waits before loading
         StartCoroutine(LoadGameAfterDelay());
     }
 
     private System.Collections.IEnumerator LoadGameAfterDelay()
     {
-        yield return new WaitForSeconds(1f); // ⏳ wait 1 second
-        SceneManager.LoadScene("GameScene"); // replace with your scene name
+        yield return new WaitForSeconds(1f);
+        SceneManager.LoadScene("GameScene");
     }
 
     public void QuitGame()
     {
-        Debug.Log("Game is quitting..."); // Works in Editor
-        Application.Quit(); // Works in a build
-        Debug.Log("I have been pressed!");
+        // Show confirm panel, hide main menu elements
+        confirmQuitPanel.SetActive(true);
+        playButton.SetActive(false);
+        quitButton.SetActive(false);
+        titleImage.SetActive(false);
+    }
+
+    public void ConfirmQuit()
+    {
+        Debug.Log("Game is quitting...");
+        #if UNITY_EDITOR
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
+    }
+
+    public void CancelQuit()
+    {
+        // Hide confirm panel, restore main menu elements
+        confirmQuitPanel.SetActive(false);
+        playButton.SetActive(true);
+        quitButton.SetActive(true);
+        titleImage.SetActive(true);
     }
 }
