@@ -8,25 +8,34 @@ using KeyOfHistory.UI;
 
 namespace KeyOfHistory.PlayerControl
 {
-
-
     public class PlayerController : MonoBehaviour
     {
+        [Header("Animation Speed")]
         [SerializeField] private float AnimBlendSpeed = 8.9f;
+        
+        [Header("Camera System")]
         [SerializeField] private Transform CameraRoot;
         [SerializeField] private Transform Camera;
         [SerializeField] private float UpperLimit = -40f;
         [SerializeField] private float BottomLimit = 70f;
         [SerializeField] private float MouseSensitivity = 21.9f;
-        // [SerializeField, Range(10, 500)] private float JumpFactor = 260f;
-        // [SerializeField] private float Dis2Ground = 0.8f;
-        //  [SerializeField] private LayerMask GroundCheck; 
+        [SerializeField] private float CameraHeadHeight = 1.6f;
+        
+        [Header("Jump Settings")]
+        [SerializeField] private float JumpForce = 8f;
+        [SerializeField] private float GroundCheckDistance = 0.5f;
+        [SerializeField] private LayerMask GroundLayer;
+        [SerializeField] private Transform GroundCheckPoint;
+        [SerializeField] private float FallMultiplier = 2.5f;
+        [SerializeField] private float LowJumpMultiplier = 2f;
+        
         [Header("Stamina System")]
         [SerializeField] private float MaxStamina = 100f;
         [SerializeField] private float StaminaDrainRate = 35f;
         [SerializeField] private float StaminaRegenRate = 15f;
         [SerializeField] private float MinStaminaToRun = 55f;
         [SerializeField] private float CurrentStamina;
+        
         [Header("UI References")]
         [SerializeField] private StaminaUIManager StaminaUI;
 
@@ -35,8 +44,8 @@ namespace KeyOfHistory.PlayerControl
         [SerializeField] private AudioClip WalkSound;
         [SerializeField] private AudioClip RunSound;
 
+        // Private variables
         private float _stepTimer;
-
         private bool _canRun = true;
         private Rigidbody _playerRigidbody;
         private InputManager _inputManager;
@@ -49,8 +58,12 @@ namespace KeyOfHistory.PlayerControl
         private int _groundHash;
         private int _fallingHash;
         private float _xRotation;
-
-
+        private float _groundCheckBuffer = 0f;
+        private float _jumpCooldown = 0f; 
+        private bool _jumpPressed = false;
+        private Vector3 _cameraRecoil = Vector3.zero;
+        private float _recoilRecoverySpeed = 5f;
+        private Collider[] _groundCheckResults = new Collider[1];
 
         private const float _walkSpeed = 6f;
         private const float _runSpeed = 14f;
@@ -61,7 +74,6 @@ namespace KeyOfHistory.PlayerControl
             _hasAnimator = TryGetComponent<Animator>(out _animator);
             _playerRigidbody = GetComponent<Rigidbody>();
             _inputManager = GetComponent<InputManager>();
-
 
             _xVelHash = Animator.StringToHash("X_Velocity");
             _yVelHash = Animator.StringToHash("Y_Velocity");
@@ -74,49 +86,48 @@ namespace KeyOfHistory.PlayerControl
 
         private void FixedUpdate()
         {
+            SampleGround();
             Move();
+            HandleJump();
+            ApplyGravity();
             UpdateStamina();
             HandleFootsteps();
-
-            // ();HandleJump
-            // SampleGround();
-
         }
 
         private void LateUpdate()
         {
+            UpdateCameraVerticalFollow();
             CamMovements();
+            UpdateCameraRecoil();
         }
 
         private void Move()
         {
             if (!_hasAnimator) return;
+            
+            Vector3 currentVel = _playerRigidbody.linearVelocity; // Cache velocity
+            
             float targetSpeed = (_inputManager.Run && _canRun) ? _runSpeed : _walkSpeed;
             if (_inputManager.Move == Vector2.zero) targetSpeed = 0.01f;
 
             _currentVelocity.x = Mathf.Lerp(_currentVelocity.x, _inputManager.Move.x * targetSpeed, AnimBlendSpeed * Time.fixedDeltaTime);
             _currentVelocity.y = Mathf.Lerp(_currentVelocity.y, _inputManager.Move.y * targetSpeed, AnimBlendSpeed * Time.fixedDeltaTime);
 
-            var xVelDifference = _currentVelocity.x - _playerRigidbody.linearVelocity.x;
-            var zVelDifference = _currentVelocity.y - _playerRigidbody.linearVelocity.z;
+            var xVelDifference = _currentVelocity.x - currentVel.x;
+            var zVelDifference = _currentVelocity.y - currentVel.z;
 
             _playerRigidbody.AddForce(transform.TransformVector(new Vector3(xVelDifference, 0, zVelDifference)), ForceMode.VelocityChange);
 
             _animator.SetFloat(_xVelHash, _currentVelocity.x);
             _animator.SetFloat(_yVelHash, _currentVelocity.y);
-
-            // Play footstep sounds
-            
-
         }
+
         private void CamMovements()
         {
             if (!_hasAnimator) return;
 
             var Mouse_X = _inputManager.Look.x;
             var Mouse_Y = _inputManager.Look.y;
-            Camera.position = CameraRoot.position;
-
 
             _xRotation -= Mouse_Y * MouseSensitivity * Time.smoothDeltaTime;
             _xRotation = Mathf.Clamp(_xRotation, UpperLimit, BottomLimit);
@@ -125,51 +136,123 @@ namespace KeyOfHistory.PlayerControl
             _playerRigidbody.MoveRotation(_playerRigidbody.rotation * Quaternion.Euler(0, Mouse_X * MouseSensitivity * Time.smoothDeltaTime, 0));
         }
 
-        //JUMPING DISABLED
-        /* private void HandleJump()
+        private void UpdateCameraVerticalFollow()
         {
-            if (!_hasAnimator) return;
-            if (!_inputManager.Jump) return;
-            // if(!_grounded) return;
-            _animator.SetTrigger(_jumpHash);
-
-            //Enable this if you want B-Hop
-            //_playerRigidbody.AddForce(-_playerRigidbody.velocity.y * Vector3.up, ForceMode.VelocityChange);
-            //_playerRigidbody.AddForce(Vector3.up * JumpFactor, ForceMode.Impulse);
-            //_animator.ResetTrigger(_jumpHash);
+            // Make camera follow player's Y position smoothly
+            Vector3 targetPos = CameraRoot.position;
+            targetPos.y = transform.position.y + CameraHeadHeight;
+            CameraRoot.position = Vector3.Lerp(CameraRoot.position, targetPos, 8f * Time.deltaTime);
         }
 
-        public void JumpAddForce()
-        { 
-            _playerRigidbody.AddForce(-_playerRigidbody.linearVelocity.y * Vector3.up, ForceMode.VelocityChange);
-            _playerRigidbody.AddForce(Vector3.up * JumpFactor, ForceMode.Impulse);
-            _animator.ResetTrigger(_jumpHash);
+        private void UpdateCameraRecoil()
+        {
+            // Apply recoil offset to camera
+            Camera.localPosition = Vector3.Lerp(Camera.localPosition, _cameraRecoil, 10f * Time.deltaTime);
+            
+            // Smoothly recover to zero
+            _cameraRecoil = Vector3.Lerp(_cameraRecoil, Vector3.zero, _recoilRecoverySpeed * Time.deltaTime);
+        }
+
+        private void HandleJump()
+        {
+            if (!_hasAnimator) return;
+            if (_jumpCooldown > 0f) return;
+            
+            // Only trigger on button DOWN (not held)
+            if (_inputManager.Jump && !_jumpPressed)
+            {
+                _jumpPressed = true;
+                
+                if (_grounded)
+                {
+                    // Stop footsteps immediately when jumping
+                    if (FootstepAudioSource != null && FootstepAudioSource.isPlaying)
+                    {
+                        FootstepAudioSource.Stop();
+                    }
+                    
+                    // CRITICAL: Completely reset vertical velocity
+                    _playerRigidbody.linearVelocity = new Vector3(
+                        _playerRigidbody.linearVelocity.x, 
+                        0f, 
+                        _playerRigidbody.linearVelocity.z
+                    );
+                    
+                    // Apply jump using VelocityChange for instant effect
+                    _playerRigidbody.AddForce(Vector3.up * JumpForce, ForceMode.VelocityChange);
+                    
+                    _grounded = false;
+                    _jumpCooldown = 0.2f;
+                    
+                    _animator.SetTrigger(_jumpHash);
+                    _animator.SetBool(_groundHash, false);
+                    _animator.SetBool(_fallingHash, true);
+                }
+            }
+            
+            // Reset when button released
+            if (!_inputManager.Jump)
+            {
+                _jumpPressed = false;
+            }
+        }
+
+        private void ApplyGravity()
+        {
+            // Make falling feel better
+            if (_playerRigidbody.linearVelocity.y < 0)
+            {
+                // Falling - apply extra gravity
+                _playerRigidbody.linearVelocity += Vector3.up * Physics.gravity.y * (FallMultiplier - 1) * Time.fixedDeltaTime;
+            }
+            else if (_playerRigidbody.linearVelocity.y > 0 && !_inputManager.Jump)
+            {
+                // Released jump button early - fall faster
+                _playerRigidbody.linearVelocity += Vector3.up * Physics.gravity.y * (LowJumpMultiplier - 1) * Time.fixedDeltaTime;
+            }
         }
 
         private void SampleGround()
         {
             if (!_hasAnimator) return;
 
-            RaycastHit hitInfo;
-            if (Physics.Raycast(_playerRigidbody.worldCenterOfMass, Vector3.down, out hitInfo, Dis2Ground + 0.1f, GroundCheck))
+            // Decrease jump cooldown
+            if (_jumpCooldown > 0f)
             {
-                //Grounded
-                _grounded = true;
-                SetAnimationGrounding();
-                return;
+                _jumpCooldown -= Time.fixedDeltaTime;
             }
-            //Falling
-            _grounded = false;
-            Debug.Log(_grounded);
-            // _animator.SetFloat(_zVelHash, _playerRigidbody.velocity.y);
-            SetAnimationGrounding();
-            return;
-        }
-        private void SetAnimationGrounding()
-        {
-            _animator.SetBool(_fallingHash, !_grounded);
+
+            Vector3 checkPosition = GroundCheckPoint != null ? GroundCheckPoint.position : transform.position;
+            bool wasGrounded = _grounded;
+            
+            // Use non-allocating version to avoid memory warnings
+            int hitCount = Physics.OverlapSphereNonAlloc(checkPosition, GroundCheckDistance, _groundCheckResults, GroundLayer);
+            bool hitGround = hitCount > 0;
+
+            // Add buffer to prevent flickering
+            if (hitGround)
+            {
+                if (!_grounded) // Just landed
+                {
+                    _cameraRecoil = new Vector3(0, -0.15f, 0); // Landing camera dip
+                }
+                
+                _grounded = true;
+                _groundCheckBuffer = 0.1f;
+            }
+            else
+            {
+                _groundCheckBuffer -= Time.fixedDeltaTime;
+                if (_groundCheckBuffer <= 0f)
+                {
+                    _grounded = false;
+                }
+            }
+
+            // Update animator
             _animator.SetBool(_groundHash, _grounded);
-        } */
+            _animator.SetBool(_fallingHash, !_grounded);
+        }
 
         private void UpdateStamina()
         {
@@ -203,55 +286,46 @@ namespace KeyOfHistory.PlayerControl
             }
         }
 
-        private void PlayFootstepSound()
+        private void HandleFootsteps()
         {
             if (FootstepAudioSource == null) return;
 
+            bool isMoving = _inputManager.Move != Vector2.zero;
             bool isRunning = _inputManager.Run && _canRun;
-            AudioClip soundToPlay = isRunning ? RunSound : WalkSound;
 
-            if (soundToPlay != null)
+            if (isMoving && _grounded) // Only play footsteps when grounded
             {
-                FootstepAudioSource.PlayOneShot(soundToPlay);
+                AudioClip correctClip = isRunning ? RunSound : WalkSound;
+                
+                if (!FootstepAudioSource.isPlaying)
+                {
+                    FootstepAudioSource.clip = correctClip;
+                    FootstepAudioSource.loop = true;
+                    FootstepAudioSource.Play();
+                }
+                else if (FootstepAudioSource.clip != correctClip)
+                {
+                    // Only switch clip if different to avoid allocations
+                    FootstepAudioSource.Stop();
+                    FootstepAudioSource.clip = correctClip;
+                    FootstepAudioSource.Play();
+                }
+            }
+            else if (FootstepAudioSource.isPlaying)
+            {
+                FootstepAudioSource.Stop();
             }
         }
-        
-        private void HandleFootsteps()
-{
-    if (FootstepAudioSource == null) return;
 
-    bool isMoving = _inputManager.Move != Vector2.zero;
-    bool isRunning = _inputManager.Run && _canRun;
-
-    if (isMoving)
-    {
-        // If not already playing, start the correct clip
-        if (!FootstepAudioSource.isPlaying)
+        // Debug visualization
+        private void OnDrawGizmos()
         {
-            FootstepAudioSource.clip = isRunning ? RunSound : WalkSound;
-            FootstepAudioSource.loop = true;
-            FootstepAudioSource.Play();
-        }
-        else
-        {
-            // If clip doesn’t match movement type, switch it
-            AudioClip correctClip = isRunning ? RunSound : WalkSound;
-            if (FootstepAudioSource.clip != correctClip)
+            if (GroundCheckPoint != null)
             {
-                FootstepAudioSource.clip = correctClip;
-                FootstepAudioSource.Play();
+                // Draw ground check sphere
+                Gizmos.color = _grounded ? Color.green : Color.red;
+                Gizmos.DrawWireSphere(GroundCheckPoint.position, GroundCheckDistance);
             }
         }
     }
-    else
-    {
-        // Stop when not moving
-        FootstepAudioSource.Stop();
-    }
-}
-
-
-
-    }
-
 }
