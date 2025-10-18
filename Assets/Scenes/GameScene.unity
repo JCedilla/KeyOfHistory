@@ -713,7 +713,7 @@ Transform:
   m_GameObject: {fileID: 379426061}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 3.6, z: 0.811}
+  m_LocalPosition: {x: 0, y: 3.85, z: 0.811}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1812,7 +1812,7 @@ Transform:
   m_GameObject: {fileID: 1294971528}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.021999998, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2002,7 +2002,7 @@ GameObject:
   - component: {fileID: 1451489439}
   - component: {fileID: 1451489438}
   - component: {fileID: 1451489437}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FloorTIle (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9205,7 +9205,7 @@ GameObject:
   - component: {fileID: 1802786144800132581}
   - component: {fileID: 4530690750402148655}
   - component: {fileID: 487936141969953699}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FloorTIle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10448,14 +10448,19 @@ MonoBehaviour:
   BottomLimit: 70
   MouseSensitivity: 21.9
   CameraHeadHeight: 1.6
-  JumpForce: 12
+  CrouchCameraHeight: 0.8
+  JumpForce: 8
   GroundCheckDistance: 0.5
   GroundLayer:
     serializedVersion: 2
-    m_Bits: 65
+    m_Bits: 64
   GroundCheckPoint: {fileID: 1294971529}
   FallMultiplier: 2.5
   LowJumpMultiplier: 2
+  CrouchSpeed: 3
+  StandingHeight: 2
+  CrouchHeight: 1
+  CrouchTransitionSpeed: 10
   MaxStamina: 100
   StaminaDrainRate: 35
   StaminaRegenRate: 15
@@ -10465,6 +10470,7 @@ MonoBehaviour:
   FootstepAudioSource: {fileID: 5936462033096008413}
   WalkSound: {fileID: 8300000, guid: a7a2c78904b04aa4891ddcfcad97decc, type: 3}
   RunSound: {fileID: 8300000, guid: 82771ea64218e4943b51311d31133e14, type: 3}
+  CrouchSound: {fileID: 0}
 --- !u!114 &5866666021038442806
 MonoBehaviour:
   m_ObjectHideFlags: 0
