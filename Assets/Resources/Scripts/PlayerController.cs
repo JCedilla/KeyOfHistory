@@ -209,11 +209,15 @@ namespace KeyOfHistory.PlayerControl
             var Mouse_X = _inputManager.Look.x;
             var Mouse_Y = _inputManager.Look.y;
 
-            _xRotation -= Mouse_Y * MouseSensitivity * Time.smoothDeltaTime;
+            // Get sensitivity from SettingsManager if available, otherwise use default
+            float sensitivity = Manager.SettingsManager.Instance != null ? 
+                Manager.SettingsManager.Instance.GetMouseSensitivity() : MouseSensitivity;
+
+            _xRotation -= Mouse_Y * sensitivity * Time.smoothDeltaTime;
             _xRotation = Mathf.Clamp(_xRotation, UpperLimit, BottomLimit);
 
             Camera.localRotation = Quaternion.Euler(_xRotation, 0, 0);
-            _playerRigidbody.MoveRotation(_playerRigidbody.rotation * Quaternion.Euler(0, Mouse_X * MouseSensitivity * Time.smoothDeltaTime, 0));
+            _playerRigidbody.MoveRotation(_playerRigidbody.rotation * Quaternion.Euler(0, Mouse_X * sensitivity * Time.smoothDeltaTime, 0));
         }
 
         private void UpdateCameraVerticalFollow()

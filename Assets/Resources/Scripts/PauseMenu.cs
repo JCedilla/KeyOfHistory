@@ -7,6 +7,7 @@ public class PauseMenu : MonoBehaviour
     [Header("Panels")]
     public GameObject pauseMenuUI;
     public GameObject confirmMenuPanel;
+    public GameObject settingsPanel;
 
     public static bool GameIsPaused = false;
 
@@ -16,7 +17,12 @@ public class PauseMenu : MonoBehaviour
     {
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
-            if (confirmMenuPanel.activeSelf)
+            if (settingsPanel.activeSelf)
+            {
+                // If settings panel is open, go back to pause menu
+                BackToPauseMenu();
+            }
+            else if (confirmMenuPanel.activeSelf)
             {
                 // If confirm panel is open, cancel it and go back to pause menu
                 CancelReturnToMenu();
@@ -36,6 +42,7 @@ public class PauseMenu : MonoBehaviour
     {
         pauseMenuUI.SetActive(false);
         confirmMenuPanel.SetActive(false);
+        settingsPanel.SetActive(false);
         Time.timeScale = 1f;
         GameIsPaused = false;
 
@@ -53,6 +60,7 @@ public class PauseMenu : MonoBehaviour
     {
         pauseMenuUI.SetActive(true);
         confirmMenuPanel.SetActive(false);
+        settingsPanel.SetActive(false);
         Time.timeScale = 0f;
         GameIsPaused = true;
 
@@ -64,10 +72,27 @@ public class PauseMenu : MonoBehaviour
         Cursor.visible = true;
     }
 
+    // Called when player clicks "Settings" button in Pause Menu
+    public void ShowSettingsPanel()
+    {
+        pauseMenuUI.SetActive(false);
+        confirmMenuPanel.SetActive(false);
+        settingsPanel.SetActive(true);
+    }
+
+    // Called when player clicks "Back" button in Settings Panel
+    public void BackToPauseMenu()
+    {
+        settingsPanel.SetActive(false);
+        confirmMenuPanel.SetActive(false);
+        pauseMenuUI.SetActive(true);
+    }
+
     // Called when player clicks "Return to Menu" in Pause Menu
     public void ShowConfirmMenu()
     {
         pauseMenuUI.SetActive(false);
+        settingsPanel.SetActive(false);
         confirmMenuPanel.SetActive(true);
     }
 
@@ -80,6 +105,7 @@ public class PauseMenu : MonoBehaviour
     public void CancelReturnToMenu()
     {
         confirmMenuPanel.SetActive(false);
+        settingsPanel.SetActive(false);
         pauseMenuUI.SetActive(true);
     }
 }
