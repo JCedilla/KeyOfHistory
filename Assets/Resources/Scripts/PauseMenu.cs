@@ -13,6 +13,9 @@ public class PauseMenu : MonoBehaviour
 
     private AudioSource[] allAudioSources;
 
+    [Header("Canvas References")]
+[SerializeField] private GameObject GameplayCanvas;
+
     void Update()
     {
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
@@ -52,8 +55,11 @@ public class PauseMenu : MonoBehaviour
                 audio.UnPause();
         }
 
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+         if (GameplayCanvas != null)
+        GameplayCanvas.SetActive(true);
+
+    Cursor.lockState = CursorLockMode.Locked;
+    Cursor.visible = false;
     }
 
     void Pause()
@@ -67,6 +73,9 @@ public class PauseMenu : MonoBehaviour
         allAudioSources = Object.FindObjectsByType<AudioSource>(FindObjectsSortMode.None);
         foreach (AudioSource audio in allAudioSources)
             audio.Pause();
+
+         if (GameplayCanvas != null)
+        GameplayCanvas.SetActive(false);
 
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
