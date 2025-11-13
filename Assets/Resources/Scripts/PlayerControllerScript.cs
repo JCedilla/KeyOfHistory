@@ -236,9 +236,14 @@ namespace KeyOfHistory.PlayerControl
         {
             // Apply recoil offset to camera
             Camera.localPosition = Vector3.Lerp(Camera.localPosition, _cameraRecoil, 10f * Time.deltaTime);
-            
+
             // Smoothly recover to zero
             _cameraRecoil = Vector3.Lerp(_cameraRecoil, Vector3.zero, _recoilRecoverySpeed * Time.deltaTime);
+        }
+        
+        public void ResetCameraRotation()
+        {
+            _xRotation = 0f; // Reset vertical look
         }
 
         private void HandleJump()

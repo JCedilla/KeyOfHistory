@@ -65,7 +65,7 @@ namespace KeyOfHistory.Manager
             AudioSource[] audioSources = PlayerObject.GetComponentsInChildren<AudioSource>();
             foreach (AudioSource source in audioSources)
             {
-                if (source.isPlaying && source.loop) // Footsteps are looping
+                if (source.isPlaying && source.loop)
                 {
                     source.Stop();
                 }
@@ -97,7 +97,7 @@ namespace KeyOfHistory.Manager
             // STEP 6: Fade to white
             yield return StartCoroutine(FadeToWhite());
             
-            // STEP 7: Teleport player (with Rigidbody position)
+            // STEP 7: Teleport player
             if (PlayerObject != null && TeleportDestination != null)
             {
                 if (playerRigidbody != null)
@@ -105,6 +105,10 @@ namespace KeyOfHistory.Manager
                     // Use Rigidbody.position for physics-based movement
                     playerRigidbody.position = TeleportDestination.position;
                     playerRigidbody.rotation = TeleportDestination.rotation;
+                    
+                    // Ensure velocity stays zero after teleport
+                    playerRigidbody.linearVelocity = Vector3.zero;
+                    playerRigidbody.angularVelocity = Vector3.zero;
                 }
                 else
                 {
@@ -113,11 +117,20 @@ namespace KeyOfHistory.Manager
                     PlayerObject.transform.rotation = TeleportDestination.rotation;
                 }
                 
-                // Ensure velocity stays zero after teleport
-                if (playerRigidbody != null)
+                // RESET CAMERA LOOK DIRECTION (using existing variable)
+                if (playerController != null)
                 {
-                    playerRigidbody.linearVelocity = Vector3.zero;
-                    playerRigidbody.angularVelocity = Vector3.zero;
+                    playerController.ResetCameraRotation();
+                }
+                
+                // RESET ANIMATOR COMPLETELY
+                if (playerAnimator != null)
+                {
+                    playerAnimator.SetFloat("X_Velocity", 0f);
+                    playerAnimator.SetFloat("Y_Velocity", 0f);
+                    playerAnimator.SetBool("Grounded", true);
+                    playerAnimator.SetBool("Falling", false);
+                    playerAnimator.SetBool("Crouching", false);
                 }
             }
             

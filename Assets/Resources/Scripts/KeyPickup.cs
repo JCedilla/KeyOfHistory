@@ -12,6 +12,15 @@ public class KeyPickup : InteractableObject
     {
         Debug.Log("Key picked up!");
         
+        // Trigger portal spawn
+        PortalSpawner spawner = FindFirstObjectByType<PortalSpawner>();
+        if (spawner != null)
+        {
+            spawner.SpawnPortal();
+        }
+        
+        // TODO: Add to inventory later
+        
         Destroy(gameObject);
     }
 }
