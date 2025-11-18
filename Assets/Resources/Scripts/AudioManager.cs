@@ -12,6 +12,7 @@ namespace KeyOfHistory.Manager
         
         [Header("Voice")]
         [SerializeField] private AudioSource VoiceSource;
+        [SerializeField] private float VoiceVolume = 1f;
         
         [Header("SFX")]
         [SerializeField] private AudioSource SFXSource;
@@ -42,6 +43,12 @@ namespace KeyOfHistory.Manager
                 MusicSource.volume = 0f; // Start at 0
                 MusicSource.Play();
                 StartCoroutine(FadeInMusic());
+            }
+            
+            // Set initial voice volume
+            if (VoiceSource != null)
+            {
+                VoiceSource.volume = VoiceVolume;
             }
         }
         
@@ -81,15 +88,49 @@ namespace KeyOfHistory.Manager
             MusicSource.Stop();
         }
         
-        // Public methods for other scripts to use
+        // ===== VOICE METHODS ===== //
+        
         public void PlayVoice(AudioClip clip)
         {
             if (VoiceSource != null && clip != null)
             {
+                // Stop any currently playing voice
+                VoiceSource.Stop();
+                
                 VoiceSource.clip = clip;
+                VoiceSource.volume = VoiceVolume;
                 VoiceSource.Play();
             }
         }
+        
+        public void StopVoice()
+        {
+            if (VoiceSource != null && VoiceSource.isPlaying)
+            {
+                VoiceSource.Stop();
+            }
+        }
+        
+        public bool IsVoicePlaying()
+        {
+            return VoiceSource != null && VoiceSource.isPlaying;
+        }
+        
+        public void SetVoiceVolume(float volume)
+        {
+            VoiceVolume = Mathf.Clamp01(volume);
+            if (VoiceSource != null)
+            {
+                VoiceSource.volume = VoiceVolume;
+            }
+        }
+        
+        public float GetVoiceVolume()
+        {
+            return VoiceVolume;
+        }
+        
+        // ===== SFX METHODS ===== //
         
         public void PlaySFX(AudioClip clip)
         {
@@ -98,6 +139,8 @@ namespace KeyOfHistory.Manager
                 SFXSource.PlayOneShot(clip);
             }
         }
+        
+        // ===== MUSIC METHODS ===== //
         
         public void SetMusicVolume(float volume)
         {
@@ -108,7 +151,8 @@ namespace KeyOfHistory.Manager
             }
         }
         
-        // Getters for other scripts to access audio sources
+        // ===== GETTERS ===== //
+        
         public AudioSource GetVoiceSource() => VoiceSource;
         public AudioSource GetSFXSource() => SFXSource;
         public AudioSource GetMusicSource() => MusicSource;

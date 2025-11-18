@@ -19,7 +19,7 @@ namespace KeyOfHistory.PlayerControl
         [SerializeField] private float UpperLimit = -40f;
         [SerializeField] private float BottomLimit = 70f;
         [SerializeField] private float MouseSensitivity = 21.9f;
-        [SerializeField] private float CameraHeadHeight = 1.6f;
+        [SerializeField] private float CameraHeadHeight = 1.9f;
         [SerializeField] private float CrouchCameraHeight = 0.8f;
         
         [Header("Jump Settings")]

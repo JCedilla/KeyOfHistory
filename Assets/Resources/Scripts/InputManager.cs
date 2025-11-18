@@ -14,6 +14,7 @@ namespace KeyOfHistory.Manager
         public bool Run { get; private set; }
         public bool Jump { get; private set; }
         public bool Crouch { get; private set; }
+        public bool LightPower { get; private set; } // NEW
 
         private InputActionMap _currentMap;
         private InputAction _moveAction;
@@ -21,6 +22,7 @@ namespace KeyOfHistory.Manager
         private InputAction _runAction;
         private InputAction _jumpAction;
         private InputAction _crouchAction;
+        private InputAction _lightPowerAction; // NEW
 
         private void Awake()
         {
@@ -31,18 +33,21 @@ namespace KeyOfHistory.Manager
             _runAction = _currentMap.FindAction("Run");
             _jumpAction = _currentMap.FindAction("Jump");
             _crouchAction = _currentMap.FindAction("Crouch");
+            _lightPowerAction = _currentMap.FindAction("LightPower"); // NEW
 
             _moveAction.performed += onMove;
             _lookAction.performed += onLook;
             _runAction.performed += onRun;
             _jumpAction.performed += onJump;
             _crouchAction.performed += onCrouch;
+            _lightPowerAction.performed += onLightPower; // NEW
 
             _moveAction.canceled += onMove;
             _lookAction.canceled += onLook;
             _runAction.canceled += onRun;
             _jumpAction.canceled += onJump;
             _crouchAction.canceled += onCrouch;
+            _lightPowerAction.canceled += onLightPower; // NEW
         }
 
         private void HideCursor()
@@ -74,6 +79,12 @@ namespace KeyOfHistory.Manager
         private void onCrouch(InputAction.CallbackContext context)
         {
             Crouch = context.ReadValueAsButton();
+        }
+
+        // NEW
+        private void onLightPower(InputAction.CallbackContext context)
+        {
+            LightPower = context.ReadValueAsButton();
         }
 
         private void OnEnable()

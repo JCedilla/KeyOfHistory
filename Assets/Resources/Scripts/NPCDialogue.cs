@@ -24,6 +24,9 @@ namespace KeyOfHistory.Manager
         [Header("Player Control")]
         [SerializeField] private GameObject PlayerObject;
         
+        [Header("Dialogue Settings")]
+        [SerializeField] private bool CanRepeatDialogue = false; // NEW: Allow talking multiple times
+        
         private int _currentLineIndex = 0;
         private bool _isInDialogue = false;
         private bool _hasCompletedDialogue = false;
@@ -39,6 +42,12 @@ namespace KeyOfHistory.Manager
         private void Start()
         {
             DialoguePanel.SetActive(false);
+            
+            // Auto-find player if not assigned
+            if (PlayerObject == null)
+            {
+                PlayerObject = GameObject.FindGameObjectWithTag("Player");
+            }
         }
         
         private void Update()
@@ -52,8 +61,16 @@ namespace KeyOfHistory.Manager
         
         public override string GetPromptText()
         {
-            // Hide prompt if dialogue is ongoing or completed
-            if (_hasCompletedDialogue || _isInDialogue)
+            // Hide prompt if dialogue is ongoing
+            if (_isInDialogue)
+                return "";
+            
+            // If can repeat dialogue, always show prompt
+            if (CanRepeatDialogue)
+                return "[E] Talk to " + NPCName;
+            
+            // Otherwise, hide prompt after completion
+            if (_hasCompletedDialogue)
                 return "";
             else
                 return "[E] Talk to " + NPCName;
@@ -61,10 +78,15 @@ namespace KeyOfHistory.Manager
         
         public override void Interact()
         {
-            if (!_hasCompletedDialogue && !_isInDialogue)
-            {
-                StartDialogue();
-            }
+            // Don't interact if already in dialogue
+            if (_isInDialogue)
+                return;
+            
+            // If can't repeat and already completed, don't start again
+            if (!CanRepeatDialogue && _hasCompletedDialogue)
+                return;
+            
+            StartDialogue();
         }
         
         private void StartDialogue()
@@ -92,6 +114,12 @@ namespace KeyOfHistory.Manager
             DialogueText.text = DialogueLines[index].Text;
             ContinuePrompt.SetActive(true);
             
+            // Stop previous voice before playing new one (FIXED)
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopVoice();
+            }
+            
             // Play voice if available
             if (DialogueLines[index].VoiceClip != null && AudioManager.Instance != null)
             {
@@ -108,14 +136,23 @@ namespace KeyOfHistory.Manager
         private void EndDialogue()
         {
             _isInDialogue = false;
-            _hasCompletedDialogue = true;
             DialoguePanel.SetActive(false);
+            
+            // Stop voice when dialogue ends (FIXED)
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.StopVoice();
+            }
             
             // Re-enable player controls
             EnablePlayerControls();
             
-            // Spawn key
-            SpawnKey();
+            // Only spawn key on first completion (not if repeating)
+            if (!_hasCompletedDialogue)
+            {
+                _hasCompletedDialogue = true;
+                SpawnKey();
+            }
         }
         
         private void SpawnKey()
@@ -151,6 +188,10 @@ namespace KeyOfHistory.Manager
             {
                 interactionSystem.enabled = false;
             }
+            
+            // Show cursor during dialogue
+            Cursor.visible = true;
+            Cursor.lockState = CursorLockMode.None;
         }
         
         private void EnablePlayerControls()
@@ -169,6 +210,10 @@ namespace KeyOfHistory.Manager
             {
                 interactionSystem.enabled = true;
             }
+            
+            // Hide cursor after dialogue
+            Cursor.visible = false;
+            Cursor.lockState = CursorLockMode.Locked;
         }
     }
     

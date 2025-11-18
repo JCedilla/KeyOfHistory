@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 689acf0369f2e204eb78d7af5e7cee8d, type: 3}
+  m_Name: NPC_Villager_Dialogue
+  m_EditorClassIdentifier: 
+  NPCName: Villager
+  Lines:
+  - Text: Dayuhan, ano ang nagdadala sa iyo dito?
+    VoiceClip: {fileID: 0}
+  - Text: Ako lang ang naka tira dito, pinoprotektahan ko ang kagubatan na nasa daan.
+    VoiceClip: {fileID: 0}
+  - Text: "Dayuhan\u2026 may kailangan kang malaman bago ka tumuloy sa kagubatan."
+    VoiceClip: {fileID: 0}
+  - Text: "Sa dulo ng karaniwang gubat, may nakatagong Mahikang Gubat \u2014 isang
+      lugar na hindi basta-basta nadaraanan."
+    VoiceClip: {fileID: 0}
+  - Text: "May nilalang na nagbabantay doon\u2026 tinatawag silang \"Kalaban ng Katotohanan.\""
+    VoiceClip: {fileID: 0}
+  - Text: 'Walang sinumang dumaan sa kanyang harapan nang hindi sinusubok. '
+    VoiceClip: {fileID: 0}
+  - Text: Siya ang dahilan kung bakit hindi na muling nalapitan ang sagradong kuweba.
+    VoiceClip: {fileID: 0}
+  - Text: 'Lampas ng Mahikang Gubat, naroon ang sinaunang kuweba. '
+    VoiceClip: {fileID: 0}
+  - Text: Doon matatagpuan ang matagal nang nanlalamig na Bato ng Apoy.
+    VoiceClip: {fileID: 0}
+  - Text: "Kung nais mong buhayin ang bato\u2026 kailangan mong lampasan ang nilalang
+      na iyon.\n"
+    VoiceClip: {fileID: 0}
+  SpawnObjectAfterDialogue: 0
+  ObjectToSpawn: {fileID: 0}
+  SpawnOffset: {x: 0, y: 0, z: 1}

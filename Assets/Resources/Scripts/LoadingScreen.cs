@@ -17,7 +17,7 @@ namespace KeyOfHistory.Manager
         [SerializeField] private TextMeshProUGUI TipText;
         
         [Header("Settings")]
-        [SerializeField] private float MinimumLoadTime = 2f;
+        [SerializeField] private float MinimumLoadTime = 5f;
         [SerializeField] private string[] LoadingTips;
         
         private void Awake()
